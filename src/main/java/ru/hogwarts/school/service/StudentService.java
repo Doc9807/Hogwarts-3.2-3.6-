@@ -1,5 +1,6 @@
 package ru.hogwarts.school.service;
 
+import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Student;
 
 import java.util.ArrayList;
@@ -8,14 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Service
 public class StudentService {
     private final Map<Long, Student> studentMap = new HashMap<>();
-    private Long idCounter = 1L;
+    private Long nextId = 1L;
 
     public Student createStudent(String name, int age) {
-        Student student = new Student(idCounter, name, age);
-        studentMap.put(idCounter, student);
-        idCounter++;
+        Student student = new Student(nextId, name, age);
+        studentMap.put(nextId, student);
+        nextId++;
         return student;
     }
 
