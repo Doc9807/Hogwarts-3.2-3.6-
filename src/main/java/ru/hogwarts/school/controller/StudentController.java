@@ -1,24 +1,17 @@
 package ru.hogwarts.school.controller;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
 import java.util.List;
 
-@OpenAPIDefinition(
-        info = @Info(
-                title = "Student API",
-                version = "1.0.0"
-        )
-)
 @Tag(name = "Student Management", description = "Operations related to student management")
 @RestController
 @RequestMapping("/student")
@@ -75,10 +68,24 @@ public class StudentController {
         return ResponseEntity.ok(students);
     }
 
-    @Operation(summary = "Get students by age")
-    @GetMapping("/age/{age}")
-    public ResponseEntity<List<Student>> getStudentsByAge(@PathVariable int age) {
-        List<Student> students = studentService.getStudentsByAge(age);
+    @Operation(summary = "Get students by age range")
+    @GetMapping("/ageBetween")
+    public ResponseEntity<List<Student>> getStudentsByAgeBetween(
+            @RequestParam int minAge,
+            @RequestParam int maxAge) {
+        List<Student> students = studentService.getStudentsByAgeBetween(minAge, maxAge);
         return ResponseEntity.ok(students);
+    }
+
+    @Operation(summary = "Get faculty by student ID")
+    @GetMapping("/{id}/faculty")
+    public ResponseEntity<Faculty> getFacultyByStudentId(
+            @Parameter(required = true) @PathVariable Long id) {
+        Faculty faculty = studentService.getFacultyByStudentId(id);
+        if (faculty != null) {
+            return ResponseEntity.ok(faculty);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

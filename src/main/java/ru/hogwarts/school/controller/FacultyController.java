@@ -1,24 +1,17 @@
 package ru.hogwarts.school.controller;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.List;
 
-@OpenAPIDefinition(
-        info = @Info(
-                title = "Faculty API",
-                version = "1.0.0"
-        )
-)
 @RestController
 @RequestMapping("/faculty")
 @Tag(name = "Faculty Management", description = "Operations related to faculty management")
@@ -29,10 +22,9 @@ public class FacultyController {
 
     @Operation(summary = "Create a new faculty")
     @PostMapping
-    public ResponseEntity<Faculty> createFaculty(@Parameter(required = true)
-                                                 @RequestParam String name,
-                                                 @Parameter(required = true)
-                                                 @RequestParam String color) {
+    public ResponseEntity<Faculty> createFaculty(
+            @Parameter(required = true) @RequestParam String name,
+            @Parameter(required = true) @RequestParam String color) {
         Faculty createdFaculty = facultyService.createFaculty(name, color);
         return ResponseEntity.ok(createdFaculty);
     }
@@ -76,10 +68,22 @@ public class FacultyController {
         return ResponseEntity.ok(faculties);
     }
 
-    @Operation(summary = "Get faculties by color")
-    @GetMapping("/filterByColor")
-    public ResponseEntity<List<Faculty>> getFacultiesByColor(@RequestParam String color) {
-        List<Faculty> faculties = facultyService.getFacultiesByColor(color);
+    @Operation(summary = "Get faculties by name or color (case-insensitive)")
+    @GetMapping("/search")
+    public ResponseEntity<List<Faculty>> getFacultiesByNameOrColor
+            (@RequestParam String nameOrColor) {
+        List<Faculty> faculties = facultyService.getFacultiesByNameOrColor(nameOrColor);
         return ResponseEntity.ok(faculties);
+    }
+
+    @Operation(summary = "Get students by faculty ID")
+    @GetMapping("/{id}/students")
+    public ResponseEntity<List<Student>> getStudentsByFacultyId(@PathVariable Long id) {
+        List<Student> students = facultyService.getStudentsByFacultyId(id);
+        if (students != null && !students.isEmpty()) {
+            return ResponseEntity.ok(students);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
