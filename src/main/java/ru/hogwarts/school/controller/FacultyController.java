@@ -12,9 +12,9 @@ import ru.hogwarts.school.service.FacultyService;
 
 import java.util.List;
 
+@Tag(name = "Faculty Management", description = "Operations related to faculty management")
 @RestController
 @RequestMapping("/faculty")
-@Tag(name = "Faculty Management", description = "Operations related to faculty management")
 public class FacultyController {
 
     @Autowired
@@ -23,9 +23,8 @@ public class FacultyController {
     @Operation(summary = "Create a new faculty")
     @PostMapping
     public ResponseEntity<Faculty> createFaculty(
-            @Parameter(required = true) @RequestParam String name,
-            @Parameter(required = true) @RequestParam String color) {
-        Faculty createdFaculty = facultyService.createFaculty(name, color);
+            @Parameter(required = true) @RequestBody Faculty faculty) { // Принимаем объект Faculty
+        Faculty createdFaculty = facultyService.createFaculty(faculty.getName(), faculty.getColor());
         return ResponseEntity.ok(createdFaculty);
     }
 
@@ -44,9 +43,8 @@ public class FacultyController {
     @Operation(summary = "Update an existing faculty")
     @PutMapping("/{id}")
     public ResponseEntity<Faculty> updateFaculty(@PathVariable Long id,
-                                                 @RequestParam String name,
-                                                 @RequestParam String color) {
-        Faculty updatedFaculty = facultyService.updateFaculty(id, name, color);
+                                                 @RequestBody Faculty faculty) { // Принимаем объект Faculty
+        Faculty updatedFaculty = facultyService.updateFaculty(id, faculty.getName(), faculty.getColor());
         if (updatedFaculty != null) {
             return ResponseEntity.ok(updatedFaculty);
         } else {

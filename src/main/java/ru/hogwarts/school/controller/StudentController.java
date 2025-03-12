@@ -3,9 +3,11 @@ package ru.hogwarts.school.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.hogwarts.school.exception.EntityNotFoundException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
@@ -22,43 +24,39 @@ public class StudentController {
 
     @Operation(summary = "Create a new student")
     @PostMapping
-    public ResponseEntity<Student> createStudent(
-            @Parameter(required = true) @RequestParam String name,
-            @Parameter(required = true) @RequestParam int age) {
-        Student createdStudent = studentService.createStudent(name, age);
+    public ResponseEntity<Student> createStudent(@Valid @RequestBody Student student) {
+        Student createdStudent = studentService.createStudent(student);
         return ResponseEntity.ok(createdStudent);
     }
 
     @Operation(summary = "Get student by ID")
     @GetMapping("/{id}")
     public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
-        Student student = studentService.getStudent(id);
-        if (student != null) {
+        try {
+            Student student = studentService.getStudent(id);
             return ResponseEntity.ok(student);
-        } else {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @Operation(summary = "Update student information")
     @PutMapping("/{id}")
-    public ResponseEntity<Student> updateStudent(
-            @PathVariable Long id,
-            @RequestParam String name,
-            @RequestParam int age) {
-        Student updatedStudent = studentService.updateStudent(id, name, age);
-        if (updatedStudent != null) {
-            return ResponseEntity.ok(updatedStudent);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Student> updateStudent(@PathVariable Long id,
+                                                 @Valid @RequestBody Student student) {
+        Student updatedStudent = studentService.updateStudent(id, student);
+        return ResponseEntity.ok(updatedStudent);
     }
 
     @Operation(summary = "Delete a student")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
-        studentService.deleteStudent(id);
-        return ResponseEntity.noContent().build();
+        try {
+            studentService.deleteStudent(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @Operation(summary = "Get all students")
@@ -82,10 +80,6 @@ public class StudentController {
     public ResponseEntity<Faculty> getFacultyByStudentId(
             @Parameter(required = true) @PathVariable Long id) {
         Faculty faculty = studentService.getFacultyByStudentId(id);
-        if (faculty != null) {
-            return ResponseEntity.ok(faculty);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(faculty);
     }
 }
