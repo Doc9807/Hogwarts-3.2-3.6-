@@ -27,7 +27,8 @@ public class AvatarService {
 
     public Avatar uploadAvatar(Long studentId, MultipartFile avatar) throws IOException {
         Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new EntityNotFoundException("Student not found with id: " + studentId));
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Student not found with id: " + studentId));
 
         String filePath = "avatars/" + studentId + "_" + avatar.getOriginalFilename();
         Path path = Paths.get(filePath);
@@ -48,6 +49,7 @@ public class AvatarService {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() ->
                         new EntityNotFoundException("Student not found with id: " + studentId));
+
         return avatarRepository.findByStudentId(studentId)
                 .orElseThrow(() ->
                         new EntityNotFoundException("Avatar not found for student id: " + studentId));
