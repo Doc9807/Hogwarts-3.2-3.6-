@@ -1,6 +1,8 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.exception.EntityNotFoundException;
@@ -27,7 +29,8 @@ public class AvatarService {
 
     public Avatar uploadAvatar(Long studentId, MultipartFile avatar) throws IOException {
         Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new EntityNotFoundException("Student not found with id: " + studentId));
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Student not found with id: " + studentId));
 
         String filePath = "avatars/" + studentId + "_" + avatar.getOriginalFilename();
         Path path = Paths.get(filePath);
@@ -48,8 +51,13 @@ public class AvatarService {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() ->
                         new EntityNotFoundException("Student not found with id: " + studentId));
+
         return avatarRepository.findByStudentId(studentId)
                 .orElseThrow(() ->
                         new EntityNotFoundException("Avatar not found for student id: " + studentId));
+    }
+
+    public Page<Avatar> getAvatars(int page, int size) {
+        return avatarRepository.findAll(PageRequest.of(page, size));
     }
 }
