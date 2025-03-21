@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - include:
+      file: classpath:liquibase/changelog/create-faculty-table.yml
+  - include:
+      file: classpath:liquibase/changelog/create-student-table.yml
+  - include:
+      file: classpath:liquibase/changelog/create-student-name-index.yml
+  - include:
+      file: classpath:liquibase/changelog/create-faculty-name-color-index.yml
