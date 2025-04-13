@@ -1,5 +1,6 @@
 package ru.hogwarts.school.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Service
+@Slf4j
 public class AvatarService {
     private final AvatarRepository avatarRepository;
     private final StudentRepository studentRepository;
@@ -28,9 +30,12 @@ public class AvatarService {
     }
 
     public Avatar uploadAvatar(Long studentId, MultipartFile avatar) throws IOException {
+        log.info("Was invoked method for upload avatar for student id: {}", studentId);
         Student student = studentRepository.findById(studentId)
-                .orElseThrow(() ->
-                        new EntityNotFoundException("Student not found with id: " + studentId));
+                .orElseThrow(() -> {
+                    log.error("Student not found with id: {}", studentId);
+                    return new EntityNotFoundException("Student not found with id: " + studentId);
+                });
 
         String filePath = "avatars/" + studentId + "_" + avatar.getOriginalFilename();
         Path path = Paths.get(filePath);
@@ -48,16 +53,22 @@ public class AvatarService {
     }
 
     public Avatar getAvatarByStudentId(Long studentId) {
+        log.info("Was invoked method for get avatar by student id: {}", studentId);
         Student student = studentRepository.findById(studentId)
-                .orElseThrow(() ->
-                        new EntityNotFoundException("Student not found with id: " + studentId));
+                .orElseThrow(() -> {
+                    log.error("Student not found with id: {}", studentId);
+                    return new EntityNotFoundException("Student not found with id: " + studentId);
+                });
 
         return avatarRepository.findByStudentId(studentId)
-                .orElseThrow(() ->
-                        new EntityNotFoundException("Avatar not found for student id: " + studentId));
+                .orElseThrow(() -> {
+                    log.error("Avatar not found for student id: {}", studentId);
+                    return new EntityNotFoundException("Avatar not found for student id: " + studentId);
+                });
     }
 
     public Page<Avatar> getAvatars(int page, int size) {
+        log.info("Was invoked method for get avatars with page: {} and size: {}", page, size);
         return avatarRepository.findAll(PageRequest.of(page, size));
     }
 }
