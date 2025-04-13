@@ -3,9 +3,13 @@ package ru.hogwarts.school.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 
+@Setter
+@Getter
 @Entity
 public class Student {
     @Id
@@ -31,46 +35,6 @@ public class Student {
         this.name = name;
         this.age = age;
         this.faculty = faculty;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public Faculty getFaculty() {
-        return faculty;
-    }
-
-    public void setFaculty(Faculty faculty) {
-        this.faculty = faculty;
-    }
-
-    public Avatar getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(Avatar avatar) {
-        this.avatar = avatar;
     }
 
     @Override
