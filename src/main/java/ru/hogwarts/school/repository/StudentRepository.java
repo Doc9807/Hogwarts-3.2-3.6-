@@ -18,4 +18,7 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     @Query("SELECT s FROM Student s ORDER BY s.id DESC")
     List<Student> findLastFiveStudents(Pageable pageable);
+
+    @Query("SELECT s.name FROM Student s WHERE UPPER(s.name) LIKE 'А%' ORDER BY s.name")
+    List<String> findAllNamesStartingWithA();
 }

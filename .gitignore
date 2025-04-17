@@ -35,3 +35,9 @@ build/
 /.gitattributes
 /mvnw
 /mvnw.cmd
+
+### Avatars ###
+/avatars/
+*.jpg
+*.png
+*.gif
