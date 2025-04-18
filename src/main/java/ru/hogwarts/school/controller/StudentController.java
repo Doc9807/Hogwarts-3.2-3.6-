@@ -2,9 +2,14 @@ package ru.hogwarts.school.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.exception.EntityNotFoundException;
@@ -31,13 +36,9 @@ public class StudentController {
 
     @Operation(summary = "Get student by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
-        try {
-            Student student = studentService.getStudent(id);
-            return ResponseEntity.ok(student);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public Student getStudentById(@PathVariable Long id) {
+        return studentService.getStudent(id);
     }
 
     @Operation(summary = "Update student information")
@@ -102,5 +103,19 @@ public class StudentController {
     public ResponseEntity<List<Student>> getLastFiveStudents() {
         List<Student> students = studentService.findLastFiveStudents();
         return ResponseEntity.ok(students);
+    }
+
+    @Operation(
+            summary = "Get student names starting with A",
+            description = "Returns sorted list of uppercase names starting with 'А'"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "List of names found",
+            content = @Content(array = @ArraySchema(schema = @Schema(type = "string")))
+    )
+    @GetMapping("/names-starting-with-a")
+    public ResponseEntity<List<String>> getNamesStartingWithA() {
+        return ResponseEntity.ok(studentService.getStudentNamesStartingWithA());
     }
 }

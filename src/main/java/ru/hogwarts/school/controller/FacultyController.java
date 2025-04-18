@@ -1,11 +1,16 @@
 package ru.hogwarts.school.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.hogwarts.school.exception.EntityNotFoundException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
@@ -22,28 +27,26 @@ public class FacultyController {
 
     @Operation(summary = "Create a new faculty")
     @PostMapping
-    public ResponseEntity<Faculty> createFaculty(
-            @Parameter(required = true) @RequestBody Faculty faculty) { // Принимаем объект Faculty
+    public ResponseEntity<Faculty> createFaculty(@Valid @RequestBody Faculty faculty) {
         Faculty createdFaculty = facultyService.createFaculty(faculty.getName(), faculty.getColor());
         return ResponseEntity.ok(createdFaculty);
     }
 
     @Operation(summary = "Get faculty by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<Faculty> getFacultyById(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.OK)
+    public Faculty getFacultyById(@PathVariable Long id) {
         Faculty faculty = facultyService.getFaculty(id);
-        System.out.println("Вошли");
-        if (faculty != null) {
-            return ResponseEntity.ok(faculty);
-        } else {
-            return ResponseEntity.notFound().build();
+        if (faculty == null) {
+            throw new EntityNotFoundException("Faculty not found");
         }
+        return faculty;
     }
 
     @Operation(summary = "Update an existing faculty")
     @PutMapping("/{id}")
     public ResponseEntity<Faculty> updateFaculty(@PathVariable Long id,
-                                                 @RequestBody Faculty faculty) { // Принимаем объект Faculty
+                                                 @Valid @RequestBody Faculty faculty) {
         Faculty updatedFaculty = facultyService.updateFaculty(id, faculty.getName(), faculty.getColor());
         if (updatedFaculty != null) {
             return ResponseEntity.ok(updatedFaculty);
@@ -83,5 +86,26 @@ public class FacultyController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @Operation(
+            summary = "Get longest faculty name",
+            description = "Returns the name of faculty with maximum length"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Longest faculty name found",
+                    content = @Content(mediaType = "text/plain")
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No faculties available",
+                    content = @Content
+            )
+    })
+    @GetMapping("/longest-name")
+    public ResponseEntity<String> getLongestFacultyName() {
+        return ResponseEntity.ok(facultyService.getLongestFacultyName());
     }
 }

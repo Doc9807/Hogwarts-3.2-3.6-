@@ -1,8 +1,6 @@
 package ru.hogwarts.school.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -96,5 +94,10 @@ public class StudentService {
     public List<Student> findLastFiveStudents() {
         log.info("Was invoked method for find last five students");
         return studentRepository.findLastFiveStudents(PageRequest.of(0, 5));
+    }
+
+    public List<String> getStudentNamesStartingWithA() {
+        log.info("Getting student names starting with 'A'");
+        return studentRepository.findAllNamesStartingWithA();
     }
 }
