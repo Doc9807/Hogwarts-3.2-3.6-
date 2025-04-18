@@ -33,7 +33,7 @@ public class MathController {
             content = @Content(schema = @Schema(type = "integer"))
     )
     @GetMapping("/sum")
-    public ResponseEntity<Integer> calculateSum() {
+    public ResponseEntity<Long> calculateSum() {
         return ResponseEntity.ok(mathService.calculateSum());
     }
 }
