@@ -8,6 +8,7 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.FacultyRepository;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -72,5 +73,13 @@ public class FacultyService {
                     return new EntityNotFoundException("Faculty not found with id: " + facultyId);
                 });
         return faculty.getStudents();
+    }
+
+    public String getLongestFacultyName() {
+        log.info("Finding faculty with longest name");
+        return facultyRepository.findAll().stream()
+                .map(Faculty::getName)
+                .max(Comparator.comparingInt(String::length))
+                .orElse("No faculties found");
     }
 }
