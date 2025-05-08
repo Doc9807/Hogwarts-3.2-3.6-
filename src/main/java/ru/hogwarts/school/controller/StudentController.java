@@ -8,24 +8,25 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.hogwarts.school.exception.EntityNotFoundException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
 import java.util.List;
 
-@Tag(name = "Student Management", description = "Operations related to student management")
+@Tag(name = "Student Management",
+        description = "Operations related to student management")
 @RestController
-@RequestMapping("/student")
+@RequestMapping("/students")
 public class StudentController {
+    private final StudentService studentService;
 
-    @Autowired
-    private StudentService studentService;
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
+    }
 
     @Operation(summary = "Create a new student")
     @PostMapping
@@ -52,12 +53,8 @@ public class StudentController {
     @Operation(summary = "Delete a student")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
-        try {
-            studentService.deleteStudent(id);
-            return ResponseEntity.noContent().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        studentService.deleteStudent(id);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Get all students")
@@ -117,5 +114,25 @@ public class StudentController {
     @GetMapping("/names-starting-with-a")
     public ResponseEntity<List<String>> getNamesStartingWithA() {
         return ResponseEntity.ok(studentService.getStudentNamesStartingWithA());
+    }
+
+    @Operation(
+            summary = "Print student names in parallel threads",
+            description = "Prints first 6 student names using parallel threads"
+    )
+    @GetMapping("/print-parallel")
+    public ResponseEntity<String> printParallel() {
+        studentService.printStudentsParallel();
+        return ResponseEntity.ok("Printing student names in parallel mode started");
+    }
+
+    @Operation(
+            summary = "Print student names with synchronization",
+            description = "Prints first 6 student names using synchronized threads"
+    )
+    @GetMapping("/print-synchronized")
+    public ResponseEntity<String> printSynchronized() {
+        studentService.printStudentsSynchronized();
+        return ResponseEntity.ok("Printing student names in synchronized mode started");
     }
 }
