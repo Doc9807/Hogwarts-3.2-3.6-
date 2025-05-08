@@ -1,7 +1,7 @@
 package ru.hogwarts.school.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,16 +11,14 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class StudentService {
     private final StudentRepository studentRepository;
-
-    @Autowired
-    public StudentService(StudentRepository studentRepository) {
-        this.studentRepository = studentRepository;
-    }
+    private static final int REQUIRED_STUDENTS_COUNT = 6;
 
     @Transactional
     public Student createStudent(Student student) {
@@ -99,5 +97,59 @@ public class StudentService {
     public List<String> getStudentNamesStartingWithA() {
         log.info("Getting student names starting with 'A'");
         return studentRepository.findAllNamesStartingWithA();
+    }
+
+    public List<String> getFirstSixStudentsNames() {
+        log.info("Was invoked method for get first six students names");
+        return studentRepository.findAll().stream()
+                .limit(REQUIRED_STUDENTS_COUNT)
+                .map(Student::getName)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void printStudentsParallel() {
+        log.info("Was invoked method for print students in parallel");
+        List<String> names = getFirstSixStudentsNames();
+        validateNamesSize(names);
+
+        System.out.println(Thread.currentThread().getName() + ": " + names.get(0));
+        System.out.println(Thread.currentThread().getName() + ": " + names.get(1));
+
+        new Thread(() -> {
+            System.out.println(Thread.currentThread().getName() + ": " + names.get(2));
+            System.out.println(Thread.currentThread().getName() + ": " + names.get(3));
+        }).start();
+
+        new Thread(() -> {
+            System.out.println(Thread.currentThread().getName() + ": " + names.get(4));
+            System.out.println(Thread.currentThread().getName() + ": " + names.get(5));
+        }).start();
+    }
+
+    @Transactional
+    public void printStudentsSynchronized() {
+        log.info("Was invoked method for print students synchronized");
+        List<String> names = getFirstSixStudentsNames();
+        validateNamesSize(names);
+
+        printNamesSynchronized(names.subList(0, 2));
+
+        new Thread(() -> printNamesSynchronized(names.subList(2, 4))).start();
+
+        new Thread(() -> printNamesSynchronized(names.subList(4, 6))).start();
+    }
+
+    private synchronized void printNamesSynchronized(List<String> names) {
+        names.forEach(name ->
+                System.out.println(Thread.currentThread().getName() + ": " + name)
+        );
+    }
+
+    private void validateNamesSize(List<String> names) {
+        if (names.size() < REQUIRED_STUDENTS_COUNT) {
+            log.error("Not enough students (required {}, got {})", REQUIRED_STUDENTS_COUNT, names.size());
+            throw new IllegalArgumentException("Need at least " + REQUIRED_STUDENTS_COUNT + " students");
+        }
     }
 }
